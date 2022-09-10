@@ -9,21 +9,17 @@ contract TriLinked {
     //Events: ============================================
 
     //Merchant Events: 
-
     event RegisterMerchantEvent(
-
+        string merchantName, 
+        bytes32 merchantID,     //(hashed) 
+        address merchantOwner 
     );
 
-    event MerchantOwnerAdded (
-
-    );
-
-    event MerchantOwnerRemoved (
+    event MerchantOwnerTransferred (
 
     );
 
     //Project Events:  
-
     event ProjectRegistered(
 
     ); 
@@ -33,7 +29,6 @@ contract TriLinked {
     ); 
 
     //Subscriber Events: 
-
     event SubscriberReceipt(
 
     ); 
@@ -46,39 +41,36 @@ contract TriLinked {
 
     ); 
 
-
-
     //Structs: ============================================
-
-   
 
     struct Merchant {
         string merchantName;
 
         bytes32 merchantID;
-        uint256[] projectIDs; //.length for number of projects
+
         uint256 merchantEarnings; 
 
         address merchantOwner; 
 
+        Product[] products; 
+
     }
 
-    struct Project {
-        string projectName;
+    struct Product {
+        string productName;
         address merchantAddress;
 
-        uint256 projectID;
-        uint256 monthlyCost; 
-        uint256 blockStart; 
-        uint256 blockEnd;
-        uint256 projectEarnings;  
+        uint256 productID;
+        uint subscriptionCost; 
+        uint256 subscriptionInterval;
+        uint256 productEarnings;  
 
         address[] currentSubscribers; // .length for gross current subscribers
         address[] pastSubscribers;    // .length for gross unsubscribers 
         Receipt[] receipts;
         
 
-        mapping(address => bool) subscriberHasPayed; //change l8r
+        mapping(address => bool) subscriberHasPayed; //change L8r
 
     }
 
@@ -89,10 +81,11 @@ contract TriLinked {
 
         mapping(uint256 => string) currentSubscriptions; // Filtering by projectName - human readable in query | .length sor gross #
         mapping(uint256 => string) pastSubscriptions;    // .length sor gross #
+        mapping(uint256 => uint) subscriptionsDue;       // Unix timestamp of all due payments (contract ID => due second)
        
         uint256 subscriberGrossPayment; //Gross monthly payment of all subscriptions  
 
-        //Mappings for amount / dates payed for products indivisually - not sure if needed in struct 
+        
     }
 
     struct Receipt {
@@ -113,7 +106,7 @@ contract TriLinked {
     
     mapping (address => Merchant) public merchants; 
 
-    //Getter Function: =================================================================
+    //Getter Functions: =================================================================
 
     //Main Functions: ==================================================================
 
@@ -125,10 +118,15 @@ contract TriLinked {
         return keccak256(abi.encodePacked(y, block.timestamp)); 
     }
 
+    function getTime () public view returns(uint256 time){
+        return block.timestamp + 30 days;
+    }
+
     function registerMerchant(address _merchantOwner, string calldata _merchantName) external {
 
         require (merchants[_merchantOwner].merchantID == 0, "Merchant Already Registered");
         require (checkNameLength(_merchantName) <= 25, "Maximum Name Length of 25 Characters Exceeded"); 
+        require (msg.sender == _merchantOwner, "Wrong Wallet! Check Metamask Account"); 
 
         Merchant memory newMerchant;
 
@@ -138,10 +136,41 @@ contract TriLinked {
         
         merchants[_merchantOwner] = newMerchant; 
 
-        //emit RegisterMerchantEvent (_merchantName, newMerchant.merchantID, _merchantOwner); // Define types up top L8r
+        emit RegisterMerchantEvent (_merchantName, newMerchant.merchantID, _merchantOwner); // Define types up top L8r
+    }
+
+    function registerProject(string calldata _productName, uint256 _subscriptionInterval, uint256 _subscriptionCost) external {
+
+        require (checkNameLength(_productName) <= 25, "Maximum Name Length of 25 Characters Exceeded");
+        require (_subscriptionInterval >= 7 && _subscriptionInterval <= 31, "Subscription Interval Must Be Between 7 and 31 Days"); 
+        require(_subscriptionCost >= 0 ether, "Subscription Cost Must Be > 0 ETHER");
+
+        Product memory newProduct;
+
+        newProduct.productName = _productName;
+        newProduct.productID = hashID(_productName); 
+        newProduct.subscriptionInterval = _subscriptionInterval; 
+        newProduct.subscriptionCost = _subscriptionCost; 
+       
+        merchants[msg.sender].products.push();
+
     }
     
 
+    /* 
+        FireBase: 
+
+        -Pros: Extremely Reduced Gas Cost -- async load times 
+        
+        -Cons: Mixed http request: 1/2 subgraph | 1/2 firebase -- Reverse engineere smart contract 
+
+        --------------------------------------------------------------
+
+        
+
+    */
+    
     //Setter Functions: ================================================================
+    
     
 }
