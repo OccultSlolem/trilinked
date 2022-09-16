@@ -237,6 +237,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-./frontend/src/firebase/keys.ts
+frontend/src/firebase/keys.ts
+frontend/functions/src/serviceAccountCert.json
 
 # End of https://www.toptal.com/developers/gitignore/api/react,visualstudiocode,node,macos,windows

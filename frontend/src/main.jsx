@@ -24,7 +24,7 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <TLNavbar></TLNavbar>
+    <TLNavbar/>
     <RouterProvider router={router}/>
   </React.StrictMode>
 )
