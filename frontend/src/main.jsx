@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Link } from 'react-router-dom'
 import App from './components/App'
-import RouterTest from './components/RouterTest'
-import TLNavbar from './components/TLNavbar'
+import Dash from './routes/dash/Dash'
+import RouterTest from './routes/RouterTest/RouterTest'
 import './index.css'
 
 const router = createBrowserRouter([
@@ -14,12 +14,22 @@ const router = createBrowserRouter([
   {
     path: "/test",
     element: <RouterTest />,
+  },
+  {
+    path: "/dash",
+    element: <Dash />,
   }
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <TLNavbar/>
+    <div className="navbar bg-base-200">
+        <div className="navbar-start">
+            <div className="navbar-item">
+                <a href={`/`}><h1>Home</h1></a>
+            </div>
+        </div>
+    </div>
     <RouterProvider router={router}/>
   </React.StrictMode>
 )
