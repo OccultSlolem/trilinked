@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@metamask/api-specs": "^0.0.30",
+    "ethers": "^5.7.1",
+    "web3": "^1.8.0"
+  }
+}
